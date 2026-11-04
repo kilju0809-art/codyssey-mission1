@@ -42,6 +42,18 @@ docker images
 docker ps -a
 ```
 
+점검 결과:
+
+![Docker 버전 확인](screenshots/docker-version.png)
+
+![Docker 엔진 요약](screenshots/docker-info-summary.png)
+
+![hello-world 실행 결과](screenshots/hello-world.png)
+
+![Docker 이미지 목록](screenshots/docker-images.png)
+
+![Docker 컨테이너 목록](screenshots/docker-containers.png)
+
 ## 5. 커스텀 웹 서버
 
 베이스 이미지는 `nginx:alpine`을 사용했다. 직접 작성한 `index.html`을 NGINX 웹 루트에 복사했다.
@@ -74,8 +86,14 @@ curl.exe http://localhost:8081
 접속 결과에는 다음 문구가 표시된다.
 
 ```text
-Docker 웹 서버 실습 성공
+Docker Web Server Test Success
 ```
+
+접속 증거:
+
+![8080 포트 접속](screenshots/web-port-8080.png)
+
+![8081 포트 접속](screenshots/web-port-8081.png)
 
 ## 6. 바인드 마운트
 
@@ -86,6 +104,8 @@ docker run --rm -v "C:\Users\82109\Documents\ChatGPT\코디세이\mission1\bind-
 ```
 
 호스트 파일을 수정한 뒤 컨테이너에서 변경된 내용을 확인하여 바인드 마운트 반영을 검증했다.
+
+![바인드 마운트 변경 반영](screenshots/bind-mount.png)
 
 ## 7. Docker 볼륨 영속성
 
@@ -101,6 +121,8 @@ docker run --rm --name mission1-volume-2 -v mission1-data:/data ubuntu cat /data
 
 컨테이너 삭제 후에도 데이터가 유지되는 것을 확인했다.
 
+![Docker 볼륨 영속성 확인](screenshots/volume-persistence.png)
+
 ## 8. Git 설정
 
 ```powershell
@@ -111,9 +133,15 @@ git status
 
 ## 9. 증거 자료
 
-스크린샷은 `screenshots` 폴더에 저장한다.
+모든 캡처는 [`screenshots`](screenshots/) 폴더에 저장했다.
 
-- `screenshots/web-port-8081.png`: 브라우저 포트 접속 증거
+### Linux 권한 실습
+
+![Ubuntu 권한 변경 전후](screenshots/ubuntu-permissions.png)
+
+### GitHub 저장소 반영 결과
+
+![GitHub 저장소 파일 목록](screenshots/github-repository.png)
 
 ## 10. 트러블슈팅
 
