@@ -376,3 +376,22 @@ docker volume inspect mission1-data
 - [x] 프로젝트 구조와 파일 역할 설명
 - [x] 재현 절차와 환경별 경로 주의사항
 - [x] 이미지·컨테이너, 네트워크, 권한 개념 설명
+
+## 20. Windows 파일 이동 실습
+
+파일 이동은 PowerShell의 `Move-Item` 명령으로 수행했다. 아래 실습에서는
+`practice.txt`를 `practice-moved.txt`로 이동한 뒤 원래 이름으로 되돌렸다.
+
+```powershell
+Move-Item -LiteralPath .\practice.txt -Destination .\practice-moved.txt
+Move-Item -LiteralPath .\practice-moved.txt -Destination .\practice.txt
+Get-ChildItem -Name practice*
+```
+
+`Move-Item`은 성공하면 별도 메시지를 출력하지 않으며, 마지막 목록 확인 결과는 다음과 같다.
+
+```text
+practice.txt
+```
+
+이를 통해 파일 이동 후 원래 위치와 파일명이 최종적으로 정상 복구되었음을 확인했다.
