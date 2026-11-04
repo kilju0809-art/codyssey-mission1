@@ -169,3 +169,210 @@ New-Item -ItemType Directory -Path .\bind-data -Force
 ```
 
 - 결과: 폴더를 다시 생성한 뒤 파일 생성과 바인드 마운트 검증에 성공함
+
+## 11. 주요 콘솔 출력 기록
+
+### Docker 버전 및 엔진
+
+```text
+Docker version 29.9.2, build ...
+Server Version: 29.9.2
+Containers: 0
+Images: 0
+Operating System: Docker Desktop
+Kernel Version: 6.18.40.1-microsoft-standard-WSL2
+```
+
+### hello-world
+
+```powershell
+docker run hello-world
+```
+
+```text
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+```
+
+### 이미지·컨테이너 확인
+
+```powershell
+docker images
+docker ps -a
+```
+
+실행 결과에는 `hello-world`, `ubuntu`, `mission1-web` 이미지와
+`mission1-web-8080`, `mission1-web-8081`, `mission1-ubuntu` 등의 컨테이너가 표시되었다.
+
+### Docker 이미지 빌드
+
+```text
+[+] Building ... FINISHED
+=> naming to docker.io/library/mission1-web:1.0
+```
+
+### 웹 접속
+
+```text
+Docker Web Server Test Success
+Codyssey Mission 1
+```
+
+### 바인드 마운트
+
+```text
+Host file updated successfully
+```
+
+### 볼륨 영속성
+
+```text
+Volume persistence verified
+```
+
+## 12. GitHub 연동 로그
+
+```powershell
+git remote -v
+```
+
+```text
+origin  https://github.com/kilju0809-art/codyssey-mission1.git (fetch)
+origin  https://github.com/kilju0809-art/codyssey-mission1.git (push)
+```
+
+```powershell
+git push -u origin main
+```
+
+```text
+main -> main
+branch 'main' set up to track 'origin/main'
+```
+
+최근 커밋:
+
+```powershell
+git log --oneline -3
+```
+
+```text
+실습 증거 스크린샷 추가
+미션 1 개발 환경 구축
+```
+
+## 13. 프로젝트 구조
+
+```text
+mission1/
+├── README.md                 # 미션 설명, 명령어, 검증 결과, 개념 정리
+├── Dockerfile                # nginx 기반 커스텀 이미지 정의
+├── index.html                # 웹 서버에서 제공하는 정적 페이지
+├── practice.txt              # PowerShell 파일 관리 실습 파일
+├── bind-data/
+│   └── message.txt           # 바인드 마운트 검증용 호스트 파일
+└── screenshots/              # 실행 결과 및 제출 증거 이미지
+```
+
+## 14. 재현 절차
+
+### Windows PowerShell
+
+1. Docker Desktop을 실행하고 Docker 엔진이 준비될 때까지 기다린다.
+2. 프로젝트 폴더로 이동한다.
+3. `docker --version`, `docker info`로 설치와 엔진을 확인한다.
+4. `docker build -t mission1-web:1.0 .`으로 이미지를 빌드한다.
+5. `docker run -d --name mission1-web-8080 -p 8080:80 mission1-web:1.0`으로 실행한다.
+6. 브라우저에서 `http://localhost:8080`을 연다.
+7. 볼륨과 바인드 마운트 명령을 실행해 데이터 연결을 검증한다.
+
+### WSL/Linux 환경
+
+Docker Desktop의 Linux 컨테이너 엔진을 사용한다. 호스트 경로는 환경마다 다르므로
+Windows PowerShell에서는 절대 경로를 사용하고, WSL에서는 `/mnt/c/...` 형식으로 바꾼다.
+
+## 15. 이미지와 컨테이너의 차이
+
+이미지는 애플리케이션 실행에 필요한 파일과 설정을 묶은 읽기 전용 템플릿이다.
+컨테이너는 이미지를 실제 프로세스로 실행한 인스턴스이며 실행·중지·삭제할 수 있다.
+소스나 Dockerfile을 변경해도 기존 이미지가 자동으로 바뀌지 않으므로 이미지를 다시 빌드해야 한다.
+
+```text
+Dockerfile + index.html --build--> 이미지(mission1-web:1.0)
+이미지 --run--> 컨테이너(mission1-web-8080)
+```
+
+## 16. 포트 포워딩과 네트워크 격리
+
+컨테이너는 별도의 네트워크 네임스페이스를 사용하므로 컨테이너의 80번 포트가
+호스트에 자동으로 노출되지 않는다. `-p 8080:80`은 호스트 8080번 포트의 요청을
+컨테이너 80번 포트로 전달하는 포트 포워딩 설정이다.
+
+포트 충돌이 발생하면 다음 순서로 확인한다.
+
+```powershell
+docker ps
+docker ps -a
+netstat -ano | findstr :8080
+docker rm -f mission1-web-8080
+```
+
+필요하면 사용하지 않는 컨테이너를 종료하거나 호스트 포트를 `8082`처럼 바꿔 실행한다.
+
+## 17. 경로와 권한 정리
+
+절대 경로는 드라이브부터 시작하는 전체 경로이며, 상대 경로는 현재 폴더를 기준으로 한다.
+호스트와 컨테이너를 연결하는 실습에서는 Windows 환경 차이를 줄이기 위해 절대 경로를 사용했다.
+팀 공유 문서에서는 프로젝트 내부의 상대 경로와 환경별 대체 경로를 함께 기록하는 것이 재현에 유리하다.
+
+Linux 권한은 소유자·그룹·기타 사용자 순서로 `rwx`를 표시한다.
+
+```text
+r = 읽기(4), w = 쓰기(2), x = 실행 또는 디렉터리 접근(1)
+644 = 소유자 rw-, 그룹 r--, 기타 사용자 r--
+755 = 소유자 rwx, 그룹 r-x, 기타 사용자 r-x
+```
+
+권한 확인과 변경:
+
+```bash
+ls -ld permission-test.txt permission-test-dir
+chmod 644 permission-test.txt
+chmod 755 permission-test-dir
+ls -ld permission-test.txt permission-test-dir
+```
+
+결과 예시:
+
+```text
+-rw-r--r-- ... permission-test.txt
+drwxr-xr-x ... permission-test-dir
+```
+
+## 18. 볼륨 백업 및 데이터 보호
+
+볼륨은 컨테이너와 생명주기가 다르지만, 볼륨 자체가 자동 백업되는 것은 아니다.
+중요한 데이터는 정기적으로 호스트 백업 또는 별도 저장소에 복사한다.
+운영 환경에서는 스냅샷 정책, 백업 주기, 복구 테스트를 함께 정하고,
+실습 환경에서는 데이터를 별도 백업 파일로 내보낸 뒤 복원 여부를 확인하는 방식을 사용한다.
+
+```powershell
+docker volume ls
+docker volume inspect mission1-data
+```
+
+## 19. 최종 검증
+
+- [x] README에 주요 명령과 핵심 출력 기록
+- [x] Docker 버전 및 엔진 확인
+- [x] hello-world 실행
+- [x] Ubuntu 권한 변경 전후 확인
+- [x] 이미지·컨테이너 목록 확인
+- [x] Dockerfile 빌드 성공
+- [x] 8080·8081 포트 접속
+- [x] 바인드 마운트 변경 반영
+- [x] 볼륨 삭제 후 데이터 유지
+- [x] Git remote 및 push 기록
+- [x] 프로젝트 구조와 파일 역할 설명
+- [x] 재현 절차와 환경별 경로 주의사항
+- [x] 이미지·컨테이너, 네트워크, 권한 개념 설명
